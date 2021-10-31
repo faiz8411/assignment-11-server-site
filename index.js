@@ -17,8 +17,9 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 
 client.connect(err => {
-    const serviceCollection = client.db("currier_service").collection("service");
-    const orderCollection = client.db("currier_service").collection("order");
+    const collections = client.db("currier_service")
+    const serviceCollection = collections.collection('services')
+    const orderCollection = collections.collection("order");
     console.log('connect database')
 
 
@@ -46,17 +47,45 @@ client.connect(err => {
                 console.log(result)
             })
     })
+    app.get('/booking/:id', (req, res) => {
+        const id = req.params.id
+        serviceCollection.findOne({ _id: ObjectId(id) })
+            .then(result => {
+                res.send(result)
+                console.log(result)
+            })
+    })
+
 
     // add order
-    app.post("/addServices", (req, res) => {
+    app.post("/addMyOrder", async (req, res) => {
         console.log(req.body);
         orderCollection.insertOne(req.body).then((result) => {
-            res.send(result)
+            res.send(result.insertedId)
             // res.send(documents.insertedId);
-
+            console.log(result)
         });
     });
+    // // add to my order
+    app.get('/myOrder', async (req, res) => {
+        const result = await orderCollection.find({}).toArray()
+        res.send(result)
+    })
 
+    app.get('/myOrder/:id', (req, res) => {
+        const id = req.params.id
+        orderCollection.findOne({ _id: ObjectId(id) })
+            .then(result => {
+                res.send(result)
+                console.log(result)
+            })
+    })
+    // delete method
+    app.delete('/deleteService/:id', async (req, res) => {
+        console.log(req.params.id)
+        const result = serviceCollection.deleteOne({ id: ObjectId(req.params.id) })
+        res.send(result)
+    })
 
     // client.close();
 });
