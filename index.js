@@ -15,14 +15,14 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 
 
-app.get('/', (req, res) => {
-    res.send('we fastest curriar for you')
 
-})
 client.connect(err => {
     const serviceCollection = client.db("currier_service").collection("service");
     const orderCollection = client.db("currier_service").collection("order");
     console.log('connect database')
+
+
+    // post-----------api
     app.post("/addServices", (req, res) => {
         console.log(req.body);
         serviceCollection.insertOne(req.body).then((result) => {
@@ -48,10 +48,21 @@ client.connect(err => {
     })
 
     // add order
+    app.post("/addServices", (req, res) => {
+        console.log(req.body);
+        orderCollection.insertOne(req.body).then((result) => {
+            res.send(result)
+            // res.send(documents.insertedId);
 
+        });
+    });
 
 
     // client.close();
 });
+app.get('/', (req, res) => {
+    res.send('we fastest curriar for you')
+
+})
 
 app.listen(process.env.PORT || port);
