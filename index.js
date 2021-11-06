@@ -19,7 +19,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 client.connect(err => {
     const collections = client.db("currier_service")
     const serviceCollection = collections.collection('services')
-    // const orderCollection = collections.collection("order");
+    const orderCollection = collections.collection("order");
     console.log('connect database')
 
 
@@ -35,6 +35,47 @@ client.connect(err => {
         res.send(result);
         console.log(result);
     });
+
+    // get single product
+    app.get("/details/:id", async (req, res) => {
+        const result = await serviceCollection.find({ _id: ObjectId(req.params.id) })
+            .toArray();
+        res.send(result[0]);
+    });
+
+    // confirm order
+    app.post("/myOrders", async (req, res) => {
+        const result = await orderCollection.insertOne(req.body);
+        console.log(result)
+        res.send(result);
+    });
+
+    // my confirmOrder
+
+    app.get("/myOrders", async (req, res) => {
+        let query = {}
+        const email = req.query.email
+        if (email) {
+            query = { email: email }
+        }
+
+        const cursor = orderCollection.find(query)
+        const orders = await cursor.toArray();
+
+
+        res.send(orders);
+    });
+
+    /// delete order
+
+    app.delete("/deleteOrder/:id", async (req, res) => {
+        const result = await orderCollection.deleteOne({
+            _id: ObjectId(req.params.id),
+        });
+        res.send(result);
+    });
+
+
 
 
 
