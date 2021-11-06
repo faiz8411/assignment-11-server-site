@@ -75,6 +75,35 @@ client.connect(err => {
         res.send(result);
     });
 
+    app.get("/allOrders", async (req, res) => {
+        const result = await orderCollection.find({}).toArray();
+        res.send(result);
+    });
+
+
+    // 
+    app.delete("/deleteOrder/:id", async (req, res) => {
+        const result = await orderCollection.deleteOne({
+            _id: ObjectId(req.params.id),
+        });
+        res.send(result);
+    });
+
+    // update 
+    app.put("/updateStatus/:id", (req, res) => {
+        const id = req.params.id;
+        const updatedStatus = req.body.status;
+        const filter = { _id: ObjectId(id) };
+        console.log(updatedStatus);
+        orderCollection
+            .updateOne(filter, {
+                $set: { status: updatedStatus },
+            })
+            .then((result) => {
+                res.send(result);
+            });
+    });
+
 
 
 
