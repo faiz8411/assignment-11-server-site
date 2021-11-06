@@ -19,73 +19,25 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 client.connect(err => {
     const collections = client.db("currier_service")
     const serviceCollection = collections.collection('services')
-    const orderCollection = collections.collection("order");
+    // const orderCollection = collections.collection("order");
     console.log('connect database')
 
 
     // post-----------api
-    app.post("/addServices", (req, res) => {
-        console.log(req.body);
-        serviceCollection.insertOne(req.body).then((result) => {
-            res.send(result.insertedId)
-            // res.send(documents.insertedId);
-
-        });
+    app.post("/addServices", async (req, res) => {
+        const result = await serviceCollection.insertOne(req.body);
+        res.send(result);
     });
 
-    app.get('/services', async (req, res) => {
-        const result = await serviceCollection.find({}).toArray()
-        res.send(result)
-    })
-
-    // service  details
-    app.get('/details/:id', (req, res) => {
-        const id = req.params.id
-        serviceCollection.findOne({ _id: ObjectId(id) })
-            .then(result => {
-                res.send(result)
-                console.log(result)
-            })
-    })
-    app.get('/booking/:id', (req, res) => {
-        const id = req.params.id
-        serviceCollection.findOne({ _id: ObjectId(id) })
-            .then(result => {
-                res.send(result)
-                console.log(result)
-            })
-    })
-
-
-    // add order
-    app.post("/addMyOrder", async (req, res) => {
-        console.log(req.body);
-        orderCollection.insertOne(req.body).then((result) => {
-            res.send(result.insertedId)
-            // res.send(documents.insertedId);
-            console.log(result)
-        });
+    // get all
+    app.get("/allServices", async (req, res) => {
+        const result = await serviceCollection.find({}).toArray();
+        res.send(result);
+        console.log(result);
     });
-    // // add to my order
-    app.get('/myOrder', async (req, res) => {
-        const result = await orderCollection.find({}).toArray()
-        res.send(result)
-    })
 
-    app.get('/myOrder/:id', (req, res) => {
-        const id = req.params.id
-        orderCollection.findOne({ _id: ObjectId(id) })
-            .then(result => {
-                res.send(result)
-                console.log(result)
-            })
-    })
-    // delete method
-    app.delete('/deleteService/:id', async (req, res) => {
-        console.log(req.params.id)
-        const result = serviceCollection.deleteOne({ id: ObjectId(req.params.id) })
-        res.send(result)
-    })
+
+
 
     // client.close();
 });
